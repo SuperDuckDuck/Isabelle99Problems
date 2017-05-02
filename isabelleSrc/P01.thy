@@ -217,6 +217,8 @@ proof (induct ls)
 }
 qed
 
+
+
 (*yet another way to prove the same theorem*)
 theorem isar_tp01_1_4 : fixes ls a b  shows "p01_1 ( ls @ [a]) b = a " 
 using [[simp_trace_new mode=full]]
@@ -227,8 +229,18 @@ proof (induct ls)
   hence  "p01_1 [a] b = a" by (subst p01_1.simps(2))
   hence "p01_1 ([] @ [a]) b = a" by (subst append_Nil)
   thus "p01_1 ([] @ [a]) b = a" .
+ next
+  fix aa ls 
+  assume "p01_1 (ls @ [a]) b = a "
+  show "p01_1 ((aa # ls) @ [a]) b = a "
+  proof (cases ls)
+    have True by (rule TrueI)
+    hence "a = a" by simp
+    hence "p01_1 [a] b = a" by (subst p01_1.simps(2))
+    hence "p01_1 [a] b = a" by (subst p01_1.simps)
 
 
+(*from now on I will mix isar and apply-script proofs and I will also mix step-by-step solving with automation*)
 
 
 fun p01_2 :: "'a list \<Rightarrow> 'a option" where
