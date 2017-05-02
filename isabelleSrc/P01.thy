@@ -30,18 +30,18 @@ term p01_1
 thm p01_1.simps(1)
 thm append_Nil
 
-theorem tp01_1 : "p01_1 [] a = a"
+theorem tp01_1_1 : "p01_1 [] a = a"
 apply (rule p01_1.simps(1)) 
 done 
 
 
-theorem isar_tp01_1 :"p01_1 [] a = a"
+theorem isar_tp01_1_1 :"p01_1 [] a = a"
 proof - 
   show ?thesis by (rule p01_1.simps(1))
 qed 
 
 
-theorem tp01_2 : "p01_1 ( ls @ [a]) b = a "
+theorem tp01_1_2 : "p01_1 ( ls @ [a]) b = a "
 apply (induct "ls")
 apply simp
 apply (case_tac "ls @ [a]")
@@ -51,7 +51,7 @@ done
 
 
 (*step by step rewriting*)
-theorem tp01_4 : "p01_1 (ls @ [a]) b = a"
+theorem tp01_1_4 : "p01_1 (ls @ [a]) b = a"
 apply (induct "ls")
   apply (subst append.append_Nil)
   apply (subst p01_1.simps(2))
@@ -79,7 +79,7 @@ done
 
 
 (*isar proof using automation*)
-theorem isar_tp01_2 : "p01_1 ( ls @ [a]) b = a "
+theorem isar_tp01_1_2 : "p01_1 ( ls @ [a]) b = a "
 proof (induction ls)
 {
   show " p01_1 ([] @ [a]) b = a" by simp
@@ -101,7 +101,7 @@ qed
 
 
 (*step by step syntactical replacement with Isar*)
-theorem isar_tp01_3 : fixes ls a b  shows "p01_1 ( ls @ [a]) b = a " 
+theorem isar_tp01_1_3 : fixes ls a b  shows "p01_1 ( ls @ [a]) b = a " 
 proof (induct ls)
  case Nil
   have "p01_1 ([] @ [a]) b =  p01_1 [a] b" unfolding append_Nil ..  (*instead of   the two dots ".." one could write "by (rule refl)" *)(*instead of unfolding \<rightarrow> "by (subst append_Nil[where ?ys = "[a]"]; rule refl)" *)
@@ -141,8 +141,7 @@ qed
 
 
 (*on other way to proof this (less readable but probably easier to understand)*)
-theorem isar_tp01_4 : fixes ls a b  shows "p01_1 ( ls @ [a]) b = a " 
-using [[simp_trace_new mode=full]]
+theorem isar_tp01_1_4 : fixes ls a b  shows "p01_1 ( ls @ [a]) b = a " 
 proof (induct ls)
 {
   show "p01_1 ([] @ [a]) b = a"
@@ -218,41 +217,40 @@ proof (induct ls)
 }
 qed
 
-
-
-(*
-oops
-
-theorem  isar_tp01_3 :  shows "p01_1 ( ls @ [a]) b = a " 
+(*yet another way to prove the same theorem*)
+theorem isar_tp01_1_4 : fixes ls a b  shows "p01_1 ( ls @ [a]) b = a " 
+using [[simp_trace_new mode=full]]
 proof (induct ls)
-{
-  show "p01_1 ([] @ [a]) b = a"
-  proof (subst append_Nil)
-  {
-    show "p01_1 [a] b = a "
-    proof 
-oops
+
+  have True by (rule TrueI)
+  hence "a = a" by simp  (*if one would want to use subst , one hab to use HOL.simp_thms (subst HOL.simp_thms(6)), which is strongly discouraged*)
+  hence  "p01_1 [a] b = a" by (subst p01_1.simps(2))
+  hence "p01_1 ([] @ [a]) b = a" by (subst append_Nil)
+  thus "p01_1 ([] @ [a]) b = a" .
+
+
+
+
 fun p01_2 :: "'a list \<Rightarrow> 'a option" where
 "p01_2 [] = None"|
 "p01_2 [x] = Some x"|
 "p01_2 (x#xs) = p01_2 xs"
-*)
 
-(*
-  proof (subst (asm) "List.append_is_Nil_conv"  )
-  {
-    show " ls = [] \<and> [a] = [] \<Longrightarrow> p01_1 (aa # ls @ [a]) b = a"
-    proof (subst (asm) "List.not_Cons_self2" )
-    {
-      show "ls = [] \<and> False \<Longrightarrow> p01_1 (aa # ls @ [a]) b = a "
-      proof (subst  (asm) HOL.simp_thms(23))
-      {
-         show "False \<Longrightarrow> p01_1 (aa # ls @ [a]) b = a" by (rule FalseE)
-       
-      }
-      qed
-    }   
-    qed
-  }
-  qed
-*)
+
+value "p01_2 [1,2,3,4,5] :: int option"
+value "p01_2 [] :: int option"
+
+term p01_2
+
+
+lemma tp01_2_1 : "p01_2 [] = None"
+apply (rule p01_2.simps(1))
+done 
+
+lemma  isar_tp01_2_1 : "p01_2 [] = None"
+proof -
+show ?thesis by (rule p01_2.simps(1))
+qed
+
+
+lemma 
