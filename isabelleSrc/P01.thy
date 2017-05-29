@@ -135,4 +135,23 @@ proof (induct ls)
   qed
 qed
 
+lemma "p01_2 ls = Some x \<Longrightarrow> length ls > 0"
+proof (induct ls)
+  show " p01_2 [] = Some x \<Longrightarrow> 0 < length []" by simp
+ next 
+  fix a ls 
+  show "(p01_2 ls = Some x \<Longrightarrow> 0 < length ls) \<Longrightarrow> p01_2 (a # ls) = Some x \<Longrightarrow> 0 < length (a # ls)"
+  proof (cases ls)
+    assume a:" p01_2 (a # ls) = Some x"
+    assume "ls = []"
+    with a show " 0 < length (a # ls)" by simp
+   next 
+    fix aa list 
+    assume a:" (p01_2 ls = Some x \<Longrightarrow> 0 < length ls)"
+    assume b:" p01_2 (a # ls) = Some x"
+    assume " ls = aa # list"
+    with a and b show " 0 < length (a # ls)" by simp
+  qed
+qed
+
  
