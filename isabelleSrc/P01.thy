@@ -39,7 +39,8 @@ qed
 
 
 
-lemma "length xs \<ge> 1 \<Longrightarrow> p01_1 xs def = last xs"  
+lemma "length xs \<ge> 1 \<Longrightarrow> p01_1 xs def = last xs"
+  using [[simp_trace_new mode=full]]
 proof (induct xs)
   show "1 \<le> length [] \<Longrightarrow> p01_1 [] def = last []" by simp
  next
@@ -140,18 +141,20 @@ proof (induct ls)
   show " p01_2 [] = Some x \<Longrightarrow> 0 < length []" by simp
  next 
   fix a ls 
-  show "(p01_2 ls = Some x \<Longrightarrow> 0 < length ls) \<Longrightarrow> p01_2 (a # ls) = Some x \<Longrightarrow> 0 < length (a # ls)"
+  show "(p01_2 ls = Some x \<Longrightarrow> 0 < length ls) \<Longrightarrow> p01_2 (a # ls) = Some x \<Longrightarrow> 0 < length (a # ls)" by simp
+qed
+(*
   proof (cases ls)
     assume a:" p01_2 (a # ls) = Some x"
     assume "ls = []"
     with a show " 0 < length (a # ls)" by simp
    next 
     fix aa list 
-    assume a:" (p01_2 ls = Some x \<Longrightarrow> 0 < length ls)"
-    assume b:" p01_2 (a # ls) = Some x"
+    assume " (p01_2 ls = Some x \<Longrightarrow> 0 < length ls)"
+    assume " p01_2 (a # ls) = Some x"
     assume " ls = aa # list"
-    with a and b show " 0 < length (a # ls)" by simp
+    show " 0 < length (a # ls)" by simp
   qed
 qed
-
+*)
  

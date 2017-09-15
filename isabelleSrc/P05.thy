@@ -28,8 +28,26 @@ proof (induct xs)
 qed
 
 lemma "p05_1 ls = rev ls"
-apply (induct ls)
-apply simp_all
-done
+  apply (induct ls)
+   apply simp_all
+  done
 
- 
+lemma "length ls = length (p05_1 ls)"
+  apply (induct ls)
+   apply simp_all
+  done
+    
+lemma lm1:  "set (h#ls) = set (ls @ [h])" by auto   
+    
+lemma "\<forall>x .x \<in> set ls \<Longrightarrow> x \<in> set (p05_1 ls)  " 
+proof (induct ls)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a ls)
+  assume a:" \<forall>x. x \<in> set (a # ls)"
+  assume b:"(\<forall>x. x \<in> set ls \<Longrightarrow> x \<in> set (p05_1 ls))"
+  with a  show ?case by (simp add : lm1)
+qed
+
+    
