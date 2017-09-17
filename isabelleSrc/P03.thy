@@ -178,9 +178,77 @@ next
   qed    
 qed
     
-    
-    
-fun p03_2 :: "'a list \<Rightarrow> nat \<Rightarrow> 'a \<Rightarrow> 'a" where 
+lemma "n \<le> length ls \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> nth ls (n - Suc 0) = p03_1 ls n defa" 
+proof (induct ls  arbitrary : n)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a ls)
+  assume hyp1:"\<And>n . n \<le> length ls \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> ls ! (n - Suc 0) = p03_1 ls n defa"
+  assume " n \<le> length (a # ls)"
+    and "n \<noteq> 0"
+  then show ?case 
+  proof (induct n)
+    case 0
+    then show ?case by simp
+  next
+    case (Suc n)
+    assume "Suc n \<le> length (a # ls)"
+       and "Suc n \<noteq> 0"
+    then show ?case 
+    proof (induct n)
+      case 0
+      then show ?case by simp
+    next
+      case (Suc n)
+      assume hypa1:"Suc (Suc n) \<le> length (a # ls)"
+         and hypa2:"Suc (Suc n) \<noteq> 0"
+      then show ?case using hyp1[where ?n="Suc n"] by simp
+    qed
+  qed
+qed
+
+lemma   "\<forall>n . ( ( p03_1 ls n defa \<in> set ls) \<or> ( p03_1 ls n defa = (defa:: 'a)))" 
+proof - 
+  {
+    assume assm:"\<exists>n .  p03_1 ls n defa \<notin> set ls \<and>  p03_1 ls n defa \<noteq> defa" 
+    {
+      fix m
+      assume " p03_1 ls m defa  \<notin> set ls \<and>  p03_1 ls m defa \<noteq> defa"
+      hence False 
+      proof (induct ls arbitrary : m)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons a ls)
+        assume hyp1:"\<And> m . p03_1 ls m defa \<notin> set ls \<and>  p03_1 ls m defa \<noteq> defa \<Longrightarrow> False"
+        assume hyp2:" p03_1 (a # ls) m defa \<notin> set (a # ls) \<and> p03_1 (a # ls) m defa \<noteq> defa"
+        then show ?case  
+        proof (induct m)
+          case 0
+          then show ?case by simp
+        next
+          case (Suc m)
+          assume " p03_1 (a # ls) (Suc m) defa \<notin> set (a # ls) \<and> p03_1 (a # ls) (Suc m) defa \<noteq> defa"
+          then show ?case 
+          proof (induct m, simp)
+            case (Suc m)
+            assume " p03_1 (a # ls) (Suc (Suc m)) defa  \<notin> set (a # ls) \<and>  p03_1 (a # ls) (Suc (Suc m)) defa \<noteq> defa"
+            hence " p03_1 ls (Suc m) defa \<notin> set (a # ls) \<and>  p03_1 ls (Suc m) defa \<noteq> defa" by simp
+            then show ?case using hyp1[where ?m="Suc m"] by (meson list.set_intros)
+          qed        
+        qed
+      qed
+    }
+    with assm have False by blast
+  }
+  hence  "\<not>(\<exists>n .  p03_1 ls n defa \<notin> set ls \<and> p03_1 ls n defa \<noteq> defa)" by blast
+  thus "\<forall>n . p03_1 ls n defa : set ls  \<or> p03_1 ls n defa = defa" by simp
+qed
+        
+  
+  
+fun p03_2 :: "'a list \<Rightarrow> nat \<Rightarrow> 'a \<Rightarrow> 'a" where  
   "p03_2 [] _ defa = defa"|
   "p03_2 _ 0 defa = defa"|
   "p03_2 (x#xs) (Suc 0) _ = x"|
@@ -188,11 +256,17 @@ fun p03_2 :: "'a list \<Rightarrow> nat \<Rightarrow> 'a \<Rightarrow> 'a" where
 
 lemma "n \<le> length ls \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> p03_2 ls n defa \<in> set ls"  by (induct ls n defa rule : p03_2.induct, simp_all)
     
-lemma ""
+lemma "n > length ls \<Longrightarrow> p03_2 ls n defa = defa" by (induct ls n defa rule : p03_2.induct, simp_all)
  
+lemma "p03_1 ls n defa = p03_2 ls n defa" by (induct ls n defa rule : p03_2.induct, simp_all)
+    
+lemma ""
+    
 definition p03_3 :: "'a list \<Rightarrow> nat \<Rightarrow> 'a \<Rightarrow> 'a" where
-  "p03_3 ls n defa  = (let tmp = drop (n - 1) ls in if List.null tmp then defa else hd tmp)"
+  "p03_3 ls n defa  = (let tmp = drop (n - (Suc 0)) ls in if List.null tmp then defa else hd tmp)"
 
+declare p03_3_def[simp]  
+  
 lemma "n \<le> length ls \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> p03_3 ls n defa \<in> set ls" 
 proof (induct ls arbitrary : n)
   case Nil
@@ -208,53 +282,32 @@ next
     then show ?case by simp
   next
     case (Suc n)
-    then show ?case 
-  qed
-    
+    assume hypa1:"Suc n \<le> length (a # ls)"
+    assume hypa2:"Suc n \<noteq> 0"
+    from hypa1 and hypa2 show ?case 
+    proof (induct n)
+      case 0
+      then show ?case by (simp add : List.null_def)
+    next
+      case (Suc n)
+      assume hypb1:"Suc (Suc n) \<le> length (a # ls)"
+        and hypb2:"Suc (Suc n) \<noteq> 0"
+      then show ?case using hyp1[where ?n="Suc n"] by simp
+    qed 
+  qed   
 qed
   
   
-primrec p03_4 :: 
+primrec p03_4 :: "'a list \<Rightarrow> nat \<Rightarrow> 'a option" where
+  "p03_4 [] _ = None"|
+  "p03_4 (x#xs) n = (case n of 0 \<Rightarrow> None | (Suc 0) \<Rightarrow> Some x  | (Suc m) \<Rightarrow> p03_4 xs n)"
   
-fun p03_5 :: ""
-    (*
-fun bla :: "'a list \<Rightarrow> nat \<Rightarrow> 'a \<Rightarrow> 'a" where
-  "bla [] _ defa = defa"|
-  "bla _ 0 defa = defa"|
-  "bla (x#xs) (Suc 0) _ = x"|
-  "bla (x#xs) (Suc n) defa = bla xs n defa"
+fun p03_5 :: "'a list \<Rightarrow> nat \<Rightarrow> 'a option" where 
+  "p03_5 [] _ = None"|
+  "p03_5 _ 0 = None"|
+  "p03_5 (x#xs) (Suc 0) = Some x"|
+  "p03_5 (x#xs) (Suc n) = p03_5 xs n"
   
-lemma "n \<le> length ls \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> bla ls n defa \<in> set ls" proof (induct ls n defa rule : bla.induct)
-  case (1 uu defa)
-  then show ?case sorry
-next
-  case (2 v va defa)
-  then show ?case sorry
-next
-  case (3 x xs uw)
-  then show ?case sorry
-next
-  case (4 x xs v defa)
-  then show ?case sorry
-qed
-  *)
-  
-  
-  (*
-declare bla_def[simp]
-  thm bla_def
-lemma "bla (n::nat) = (0::nat) \<or> bla n = 2 \<or> bla n = 1" 
-  using [[simp_trace_new mode=full]]
-proof (induct n)
-  case 0
-    (*have "bla 0 = " *)
-  then show ?case by simp
-next
-  case (Suc n)
-  then show ?case sorry
-qed
-  *)
-    
 (*
 fun p03_1 :: "'a list \<Rightarrow> nat \<Rightarrow> 'a option" where
 "p03_1 [] _ = None"|
