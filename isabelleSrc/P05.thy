@@ -36,6 +36,10 @@ lemma "length ls = length (p05_1 ls)"
   apply (induct ls)
    apply simp_all
   done   
+  
+lemma "p05_1 (p05_1 ls ) = ls" by (induct ls; simp_all)
+    
+    
     
 lemma "\<forall>x .x \<in> set ls \<Longrightarrow> x \<in> set (p05_1 ls)  " 
 proof (induct ls)
@@ -44,8 +48,23 @@ proof (induct ls)
 next
   case (Cons a ls)
   assume a:" \<forall>x. x \<in> set (a # ls)"
-  assume b:"(\<forall>x. x \<in> set ls \<Longrightarrow> x \<in> set (p05_1 ls))"
+     and b:"(\<forall>x. x \<in> set ls \<Longrightarrow> x \<in> set (p05_1 ls))"
   with a  show ?case 
 qed
 
-    
+lemma "set ls = set (p05_1 ls)"
+proof (induct ls)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a ls)
+  then show ?case 
+  proof (cases "a \<in> set ls")
+    case True
+    then show ?thesis by (simp add: Cons.hyps)
+  next
+    case False
+    then show ?thesis by (simp add : Cons.hyps)
+  qed
+qed
+  
